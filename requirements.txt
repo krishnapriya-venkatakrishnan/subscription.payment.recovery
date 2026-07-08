@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+stripe
+anthropic
+sqlalchemy
+psycopg2-binary
+pydantic
+pydantic-settings
+python-dotenv
