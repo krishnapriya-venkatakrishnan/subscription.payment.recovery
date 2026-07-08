@@ -34,12 +34,12 @@ def extract_payment_failure(event: stripe.Event) -> PaymentFailureEvent:
     decline_code = None
     failure_reason = None
 
-    charge_id = invoice.get("charge")
+    charge_id = getattr(invoice, "charge", None)
     if charge_id:
         try:
             charge = stripe.Charge.retrieve(charge_id)
-            decline_code = charge.get("failure_code")
-            failure_reason = charge.get("failure_message")
+            decline_code = getattr(charge, "failure_code", None)
+            failure_reason = getattr(charge, "failure_message", None)
         except stripe.error.StripeError:
             pass
 
@@ -49,6 +49,6 @@ def extract_payment_failure(event: stripe.Event) -> PaymentFailureEvent:
         customer_id=invoice["customer"],
         decline_code=decline_code,
         failure_reason=failure_reason,
-        amount_due=invoice.get("amount_due", 0),
-        currency=invoice.get("currency", "usd"),
+        amount_due=getattr(invoice, "amount_due", 0),
+        currency=getattr(invoice, "currency", "usd"),
     )

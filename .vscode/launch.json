@@ -1,0 +1,70 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Main config for breakpoints in app/*.py while the server runs.
+      // No --reload here on purpose: uvicorn's reloader spawns a child
+      // process that the debugger isn't attached to, so breakpoints in
+      // your route/agent code silently never trigger. Restart this
+      // config manually after code changes instead.
+      "name": "FastAPI: uvicorn (debug)",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--port", "8000"],
+      "envFile": "${workspaceFolder}/.env",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true
+    },
+    {
+      // Same as above but with --reload — only use this one if you're not
+      // relying on breakpoints (e.g. just iterating on non-breakpointed
+      // code and watching logs). "subProcess": true attaches the debugger
+      // to uvicorn's reload worker too, but this is flakier than the
+      // no-reload config above.
+      "name": "FastAPI: uvicorn (reload, subprocess debug)",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--reload", "--port", "8000"],
+      "envFile": "${workspaceFolder}/.env",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true,
+      "subProcess": true
+    },
+    {
+      // Fast, isolated debugging of the agent — no server, no Stripe.
+      // Set a breakpoint in app/agent.py and step through the Anthropic
+      // call and response parsing directly.
+      "name": "Debug: debug_agent.py",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "program": "${workspaceFolder}/scripts/debug_agent.py",
+      "args": ["--reason", "generic_decline"],
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true
+    },
+    {
+      // Sends a synthetic webhook to a server started separately (run the
+      // "FastAPI: uvicorn (debug)" config first, then launch this one).
+      // Breakpoints in app/webhook.py, app/orchestrator.py, etc. will hit
+      // in the *server's* debug session, not this one — this config just
+      // sends the request and prints the response.
+      "name": "Debug: send_test_webhook.py",
+      "type": "debugpy",
+      "request": "launch",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "program": "${workspaceFolder}/scripts/send_test_webhook.py",
+      "args": [],
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": true
+    }
+  ]
+}
